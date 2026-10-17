@@ -2,61 +2,58 @@
 <html lang="zh-HK">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>姐姐日程 - Jadual Kerja</title>
 <link rel="apple-touch-icon" href="icon.png">
-<link rel="apple-touch-icon" sizes="180x180" href="icon.png">
-<link rel="icon" type="image/png" href="icon.png">
+<link rel="icon" href="icon.png">
 <meta name="apple-mobile-web-app-title" content="姐姐日程">
 <style>
-:root{--bg:#fff7ed;--card:#fff;--text:#111;--muted:#888;--primary:#ff8a3d;--border:#f3d5b5;--done:#a8e6a3}
-*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,PingFang HK,sans-serif;padding-bottom:110px;line-height:1.5}
-.top{position:sticky;top:0;z-index:10;background:var(--card);border-bottom:2.5px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px}
-.pages{max-width:520px;margin:0 auto;padding:12px 14px}
-.card{background:var(--card);border:2.5px solid #111;border-radius:18px;padding:14px;margin-bottom:14px}
-.row{display:flex;gap:8px;align-items:center}
-.btn{flex:1;padding:14px;border-radius:14px;border:none;background:var(--primary);color:#fff;font-weight:900;font-size:1rem}
-.ghost{flex:1;padding:12px;border-radius:14px;border:2px solid var(--border);background:var(--bg);font-weight:800}
-.task{border-bottom:1.5px dashed var(--border);padding:12px 4px;display:flex;gap:10px}
-.chk{width:28px;height:28px;border-radius:8px;border:2.5px solid #111;display:grid;place-items:center;cursor:pointer}
+:root{--bg:#fff7ed;--card:#fff;--primary:#ff8a3d;--border:#f3d5b5;--done:#a8e6a3}
+body{margin:0;background:var(--bg);font-family:-apple-system,PingFang HK,sans-serif;padding-bottom:110px}
+.top{position:sticky;top:0;background:#fff;border-bottom:2.5px solid var(--border);padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.card{background:#fff;border:2.5px solid #111;border-radius:18px;padding:14px;margin:14px}
+.btn{padding:14px;border-radius:14px;border:none;background:var(--primary);color:#fff;font-weight:900;width:100%}
+.task{border-bottom:1.5px dashed var(--border);padding:12px 4px;display:flex;gap:10px;align-items:center}
+.chk{width:28px;height:28px;border:2.5px solid #111;border-radius:8px;display:grid;place-items:center}
 .chk.done{background:var(--done)}
-.badge{display:inline-block;background:#fff3d6;border:2px solid #111;border-radius:10px;padding:2px 8px;font-weight:800}
-.progress{height:12px;background:#ffe9d0;border-radius:20px;overflow:hidden;border:1.5px solid #111}
-.progress i{display:block;height:100%;background:var(--primary);width:0%}
-.bottom{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:2.5px solid #111;display:flex;justify-content:space-around;padding:12px 0 32px}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;z-index:999;align-items:center;justify-content:center;padding:14px}
-.modal.open{display:flex}
-.sheet{width:100%;max-width:480px;background:var(--card);border-radius:22px;border:3px solid #111;overflow:hidden}
-input,select{width:100%;padding:12px;border-radius:12px;border:2px solid var(--border);background:var(--bg);font-size:1rem}
+.badge{background:#fff3d6;border:2px solid #111;border-radius:10px;padding:2px 8px;font-weight:800}
 </style>
 </head>
 <body>
-<div class="top"><div><b>每日工作日程</b><div style="font-size:.9rem;color:#888">Jadual Kerja Harian - Siti</div></div><div style="margin-left:auto"><input type="date" id="dayPicker"></div></div>
-<div class="pages">
-<div class="card row" style="justify-content:space-between"><span><b id="todayStr"></b> <span id="progText" class="badge">0/0</span></span><span id="dateIndo"></span></div>
-<div class="card"><div style="display:flex;justify-content:space-between;font-weight:900;margin-bottom:8px">今日進度 / Kemajuan Hari Ini <span id="pct">0%</span></div><div class="progress"><i id="bar"></i></div></div>
-<div id="list"></div>
-<div class="card row"><button class="btn" onclick="openAdd()">+ 新增任務 / Tambah Tugas</button><button class="ghost" onclick="resetToday()">重設</button><button class="ghost" onclick="exportPDF()">📄 PDF</button></div>
-</div>
-<div class="modal" id="mAdd"><div class="sheet"><div style="padding:14px;display:flex;justify-content:space-between;font-weight:900"><b>新增任務</b><span onclick="closeM('mAdd')">✕</span></div><div style="padding:14px;display:flex;flex-direction:column;gap:10px">
-<input id="fZh" placeholder="中文 例如：掃地拖地"><input id="fId" placeholder="印尼文 例如：Menyapu lantai"><select id="fSlot"><option value="Pagi">早上 Pagi 06:00-10:00</option><option value="Sore">下午 Sore</option><option value="Malam">晚上 Malam</option></select><input id="fTime" type="time" value="08:00"><button class="btn" onclick="saveTask()">儲存</button></div></div></div>
-<div id="pdfWrap" style="position:fixed;inset:0;background:#222;display:none;flex-direction:column;z-index:10000"><div style="background:#fff;padding:12px;display:flex;gap:12px"><button class="btn" onclick="closePDF()" style="width:80px">✕ 關閉</button><button class="ghost" onclick="sharePDF()">📤 分享</button></div><div style="flex:1;overflow:auto;background:#333;padding:16px;display:flex;justify-content:center"><div style="background:#fff;width:100%;max-width:800px;padding:15mm" id="pdfContent"></div></div></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<div class="top"><div><b>每日工作日程</b><div style="font-size:.8rem;color:#888">Jadual Kerja + Menu</div></div><input type="date" id="dayPicker"></div>
+<div id="list" style="max-width:520px;margin:0 auto;padding:10px"></div>
+
 <script>
-const DEFAULT=[{zh:"掃地和拖地",id:"Menyapu & mengepel lantai",slot:"Pagi",time:"07:00"},{zh:"準備早餐",id:"Menyiapkan sarapan",slot:"Pagi",time:"07:30"},{zh:"清洗早餐餐具",id:"Mencuci piring sarapan",slot:"Pagi",time:"08:30"},{zh:"洗衣服並晾乾",id:"Mencuci cucian & menjemur",slot:"Sore",time:"13:00"},{zh:"折疊衣物",id:"Melipat pakaian",slot:"Sore",time:"15:00"},{zh:"採買食材",id:"Berbelanja bahan makanan",slot:"Sore",time:"14:30"},{zh:"準備晚餐",id:"Menyiapkan makan malam",slot:"Malam",time:"17:30"},{zh:"清理廚房",id:"Membersihkan dapur",slot:"Malam",time:"19:00"},{zh:"檢查門窗是否鎖好",id:"Mengecek jendela & pintu dikunci",slot:"Malam",time:"20:00"},{zh:"倒垃圾",id:"Buang sampah",slot:"Malam",time:"20:30"}];
+const DEFAULT=[{zh:"掃地和拖地",id:"Menyapu lantai",slot:"Pagi",time:"07:00"},{zh:"準備早餐",id:"Sarapan",slot:"Pagi",time:"07:30"},{zh:"洗衣服",id:"Cuci baju",slot:"Sore",time:"13:00"},{zh:"準備晚餐",id:"Menyiapkan makan malam",slot:"Malam",time:"17:30",linkMenu:true},{zh:"清理廚房",id:"Bersih dapur",slot:"Malam",time:"19:00"}];
 let tasks=JSON.parse(localStorage.getItem('jadualTasks')||'null')||DEFAULT.map(t=>({...t,done:false,date:fmt(new Date())}));
 let curDate=new Date();
 function fmt(d){if(typeof d==='string')return d;return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
-function getIndo(d){return ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"][d.getDay()];}
-dayPicker.valueAsDate=curDate;dayPicker.onchange=e=>{curDate=e.target.valueAsDate||new Date();render();}
-function openAdd(){mAdd.classList.add('open');}function closeM(id){document.getElementById(id).classList.remove('open');}
-function saveTask(){let zh=fZh.value.trim(),idt=fId.value.trim(),slot=fSlot.value,time=fTime.value;if(!zh)return alert('請填中文');if(!idt)idt=zh;tasks.push({zh,id:idt,slot,time,done:false,date:fmt(curDate)});localStorage.setItem('jadualTasks',JSON.stringify(tasks));closeM('mAdd');fZh.value='';fId.value='';render();}
+dayPicker.valueAsDate=curDate; dayPicker.onchange=e=>{curDate=e.target.valueAsDate;render();}
+
 function toggle(i){tasks[i].done=!tasks[i].done;localStorage.setItem('jadualTasks',JSON.stringify(tasks));render();}
-function resetToday(){let f=fmt(curDate);tasks.forEach(t=>{if(t.date===f)t.done=false;});localStorage.setItem('jadualTasks',JSON.stringify(tasks));render();}
-function render(){let f=fmt(curDate);todayStr.innerText=f;dateIndo.innerText=getIndo(curDate)+', '+f;let dayTasks=tasks.filter(t=>t.date===f);if(dayTasks.length==0&&fmt(new Date())==f){DEFAULT.forEach(t=>tasks.push({...t,done:false,date:f}));localStorage.setItem('jadualTasks',JSON.stringify(tasks));dayTasks=tasks.filter(t=>t.date===f);}let groups={Pagi:[],Sore:[],Malam:[]};dayTasks.forEach(t=>{t._gi=tasks.indexOf(t);(groups[t.slot]||groups.Pagi).push(t);});let html='';for(let slot of['Pagi','Sore','Malam']){let label=slot=='Pagi'?'早上 · Pagi':slot=='Sore'?'下午 · Sore':'晚上 · Malam';let range=slot=='Pagi'?'06:00-10:00':slot=='Sore'?'12:00-16:00':'17:00-20:00';let icon=slot=='Pagi'?'🌅':slot=='Sore'?'🌤️':'🌙';html+=`<div class="card"><div style="display:flex;justify-content:space-between;font-weight:900;margin-bottom:8px"><span>${icon} ${label}</span><span>${range}</span></div>`;if(groups[slot].length==0)html+=`<div>暫無任務</div>`;else groups[slot].forEach(t=>{html+=`<div class="task"><div class="chk ${t.done?'done':''}" onclick="toggle(${t._gi})">${t.done?'✓':''}</div><div style="flex:1"><b style="${t.done?'text-decoration:line-through;color:#888':''}">${t.id} ${t.zh}</b><div style="font-size:.85rem;color:#888">${t.time}</div></div><button onclick="tasks.splice(${t._gi},1);localStorage.setItem('jadualTasks',JSON.stringify(tasks));render();">🗑️</button></div>`;});html+=`</div>`;}list.innerHTML=html;let done=dayTasks.filter(t=>t.done).length,total=dayTasks.length,pct=total?Math.round(done/total*100):0;progText.innerText=`${done}/${total}`;pct.innerText=pct+'%';bar.style.width=pct+'%';}
-function makePDF(){let f=fmt(curDate);let dayTasks=tasks.filter(t=>t.date==f);let h=`<h1 style="text-align:center">每日工作日程 - ${f}</h1>`;["Pagi","Sore","Malam"].forEach(slot=>{let label=slot=='Pagi'?'早上':slot=='Sore'?'下午':'晚上';h+=`<h3>${label} ${slot}</h3>`;dayTasks.filter(t=>t.slot==slot).forEach(t=>{h+=`<div style="border-bottom:1px dashed #999;padding:6px">${t.done?'✓':''} ${t.time} - ${t.zh} / ${t.id}</div>`;});});return h;}
-function exportPDF(){pdfContent.innerHTML=makePDF();pdfWrap.style.display='flex';}function closePDF(){pdfWrap.style.display='none';}
-async function sharePDF(){const {jsPDF}=window.jspdf;const pdf=new jsPDF();const c=await html2canvas(pdfContent,{scale:1.5});let img=c.toDataURL('image/jpeg',0.85);pdf.addImage(img,'JPEG',15,15,180,0);let blob=pdf.output('blob');let url=URL.createObjectURL(blob);let a=document.createElement('a');a.href=url;a.download=`schedule_${fmt(curDate)}.pdf`;a.click();}
+function render(){
+ let f=fmt(curDate); let dayTasks=tasks.filter(t=>t.date==f);
+ let html='';
+ ["Pagi","Sore","Malam"].forEach(slot=>{
+  html+=`<div class="card"><b>${slot}</b>`;
+  dayTasks.filter(t=>t.slot==slot).forEach(t=>{
+   let gi=tasks.indexOf(t);
+   let menuBtn=t.linkMenu?`<button onclick="goMenu()" style="margin-left:8px;background:#fff3d6;border:2px solid #111;border-radius:8px;padding:4px 8px;font-weight:800">📖 睇今日菜單 / Lihat Menu</button>`:'';
+   html+=`<div class="task"><div class="chk ${t.done?'done':''}" onclick="toggle(${gi})">${t.done?'✓':''}</div><div><b>${t.zh} / ${t.id}</b><div style="font-size:.8rem;color:#888">${t.time}</div>${menuBtn}</div></div>`;
+  });
+  html+=`</div>`;
+ });
+ document.getElementById('list').innerHTML=html+`<div class="card"><button class="btn" onclick="goMenu()">🍳 直接去我的菜單 / Buka Aplikasi Menu</button></div>`;
+}
+function goMenu(){
+ // 如果你個菜單檔叫 index.html 或 menu.html，會自動跳
+ if(confirm('跳去「我的菜單」睇今日煮咩？ / Buka menu hari ini?')){
+  // 試下搵同目錄下嘅菜單
+  let possible=["index.html","menu.html","我的菜單.html","Best_Version_27.html"];
+  // 預設跳去 index.html，你可以改
+  window.location.href="index.html";
+ }
+}
 render();
 </script>
 </body>
