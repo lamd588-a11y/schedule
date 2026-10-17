@@ -3,113 +3,159 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>姐姐日程 - 預設版</title>
+<title>姐姐日程</title>
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="icon" href="icon.png">
-<meta name="apple-mobile-web-app-title" content="姐姐日程">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-:root{--bg:#fff7ed;--card:#fff;--primary:#ff8a3d;--border:#f3d5b5;--done:#a8e6a3}
+:root{--bg:#fff7ed;--primary:#ff8a3d;--done:#a8e6a3}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);font-family:-apple-system,PingFang HK,sans-serif;padding-bottom:120px}
-.top{position:sticky;top:0;background:#fff;border-bottom:2.5px solid #f3d5b5;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
-.card{background:#fff;border:2.5px solid #111;border-radius:18px;padding:14px;margin:14px;box-shadow:4px 4px 0 #111}
-.chk{width:34px;height:34px;border:2.5px solid #111;border-radius:9px;display:grid;place-items:center;font-weight:900;background:#fff;cursor:pointer}
+body{margin:0;background:var(--bg);font-family:-apple-system,PingFang HK,sans-serif;padding-bottom:110px}
+.top{position:sticky;top:0;background:#fff;border-bottom:2.5px solid #f3d5b5;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;z-index:10}
+.card{background:#fff;border:2.5px solid #111;border-radius:18px;padding:16px;margin:14px;box-shadow:4px 4px 0 #111;cursor:pointer}
+.card:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #111}
+.btn{width:100%;padding:14px;border-radius:14px;background:var(--primary);color:#fff;font-weight:900;border:2.5px solid #111;box-shadow:3px 3px 0 #111;cursor:pointer}
+.btn2{background:#fff;color:#111}
+.small{font-size:.85rem;color:#666}
+.badge{background:#fff3d6;border:2px solid #111;border-radius:10px;padding:2px 8px;font-weight:800;font-size:.8rem}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;place-items:center;z-index:99;padding:14px}
+.modal.open{display:grid}
+.modal-box{background:#fff;border:2.5px solid #111;border-radius:20px;width:100%;max-width:480px;max-height:85vh;overflow:auto;padding:16px;box-shadow:6px 6px 0 #111}
+.task-row{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1.5px dashed #f3d5b5}
+.chk{width:36px;height:36px;min-width:36px;border:2.5px solid #111;border-radius:10px;display:grid;place-items:center;font-weight:900;background:#fff;cursor:pointer}
 .chk.done{background:var(--done)}
-.btn{display:block;text-align:center;padding:14px;border-radius:14px;background:var(--primary);color:#fff;font-weight:900;text-decoration:none;border:2.5px solid #111}
-.small{font-size:.8rem;color:#666}
-input[type=text]{width:100%;padding:10px;border:2px solid #111;border-radius:10px;margin:4px 0}
+input,select{width:100%;padding:10px;border:2px solid #111;border-radius:10px;margin:4px 0}
 </style>
 </head>
 <body>
 <div class="top">
-  <div id="titleBox"><b>姐姐日程</b><div class="small">Jadual · 長按標題改預設</div></div>
-  <div><input type="date" id="dayPicker" style="padding:8px;border-radius:10px;border:2px solid #111"><a href="index.html" style="margin-left:8px;text-decoration:none;background:#fff3d6;border:2px solid #111;border-radius:10px;padding:8px 10px;font-weight:800;color:#111">🍳菜單</a></div>
+  <div><b>姐姐日程</b><div class="small">Jadual Kerja</div></div>
+  <div style="display:flex;gap:8px">
+    <button onclick="openSettings()" style="padding:8px 12px;border:2px solid #111;border-radius:10px;background:#fff;font-weight:800">⚙️設定</button>
+    <button onclick="exportPDF()" style="padding:8px 12px;border:2px solid #111;border-radius:10px;background:#111;color:#fff;font-weight:800">📄匯出PDF</button>
+  </div>
 </div>
-<div id="list" style="max-width:560px;margin:0 auto"></div>
-<div id="editPanel" style="display:none;max-width:560px;margin:0 auto"></div>
+
+<div style="max-width:560px;margin:0 auto;padding:10px">
+  <div style="display:flex;gap:8px;padding:0 14px;align-items:center"><input type="date" id="dayPicker" style="flex:1"><span class="small" id="weekLabel"></span></div>
+
+  <div class="card" onclick="openSlot('Pagi')"><div style="display:flex;justify-content:space-between"><h3 style="margin:0">☀️ 早上 Pagi</h3><span class="badge" id="badgePagi"></span></div><div class="small" id="previewPagi"></div></div>
+  <div class="card" onclick="openSlot('Sore')"><div style="display:flex;justify-content:space-between"><h3 style="margin:0">🌤️ 下午 Sore</h3><span class="badge" id="badgeSore"></span></div><div class="small" id="previewSore"></div></div>
+  <div class="card" onclick="openSlot('Malam')"><div style="display:flex;justify-content:space-between"><h3 style="margin:0">🌙 晚上 Malam</h3><span class="badge" id="badgeMalam"></span></div><div class="small" id="previewMalam"></div></div>
+</div>
+
+<!-- 彈窗：剔工作 -->
+<div class="modal" id="slotModal" onclick="if(event.target==this)closeSlot()">
+  <div class="modal-box">
+    <div style="display:flex;justify-content:space-between;align-items:center"><h3 id="modalTitle" style="margin:0"></h3><button onclick="closeSlot()" style="border:2px solid #111;border-radius:8px;padding:4px 10px">✕</button></div>
+    <div id="modalList"></div>
+    <button onclick="closeSlot()" class="btn" style="margin-top:12px">完成 / Selesai</button>
+  </div>
+</div>
+
+<!-- 設定頁 -->
+<div class="modal" id="settingsModal" onclick="if(event.target==this)closeSettings()">
+  <div class="modal-box">
+    <div style="display:flex;justify-content:space-between"><h3 style="margin:0">設定工作清單 / Edit Daftar Kerja</h3><button onclick="closeSettings()" style="border:2px solid #111;border-radius:8px;padding:4px 10px">✕</button></div>
+    <div id="settingsList" style="margin-top:12px"></div>
+    <button onclick="addTask()" style="width:100%;margin-top:10px;padding:10px;border:2px dashed #111;border-radius:10px">+ 加任務 / Tambah Tugas</button>
+    <button onclick="saveSettings()" class="btn" style="margin-top:12px">儲存 / Simpan</button>
+  </div>
+</div>
 
 <script>
-let DEFAULT_TASKS = JSON.parse(localStorage.getItem('defaultTasks')||'null') || [
+let DEFAULT = JSON.parse(localStorage.getItem('defaultTasksV4')||'null') || [
  {zh:"掃地和拖地",id:"Menyapu & mengepel",slot:"Pagi",time:"07:00"},
  {zh:"準備早餐",id:"Sarapan",slot:"Pagi",time:"07:30"},
- {zh:"洗衫晾衫",id:"Cuci & jemur baju",slot:"Pagi",time:"09:00"},
- {zh:"買餸 / 準備午餐",id:"Beli & masak siang",slot:"Sore",time:"11:00"},
+ {zh:"洗衫晾衫",id:"Cuci & jemur",slot:"Pagi",time:"09:00"},
+ {zh:"買餸 / 煮午餐",id:"Belanja & masak siang",slot:"Sore",time:"11:30"},
  {zh:"清潔廁所",id:"Bersih kamar mandi",slot:"Sore",time:"14:00"},
- {zh:"準備晚餐",id:"Masak malam",slot:"Malam",time:"17:30",linkMenu:true},
+ {zh:"準備晚餐",id:"Masak malam",slot:"Malam",time:"17:30"},
  {zh:"清理廚房",id:"Bersih dapur",slot:"Malam",time:"19:00"}
 ];
-let tasksByDate = JSON.parse(localStorage.getItem('tasksByDate')||'{}');
+let tasksByDate = JSON.parse(localStorage.getItem('tasksByDateV4')||'{}');
 function fmt(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 let cur=new Date();
 const picker=document.getElementById('dayPicker');
 picker.valueAsDate=cur;
 picker.onchange=e=>{cur=e.target.valueAsDate;render();};
-
-function getDayTasks(dateStr){
- if(!tasksByDate[dateStr]){
-   tasksByDate[dateStr]=DEFAULT_TASKS.map(t=>({...t,done:false}));
-   save();
- }
- return tasksByDate[dateStr];
-}
-function save(){
- localStorage.setItem('tasksByDate',JSON.stringify(tasksByDate));
- localStorage.setItem('defaultTasks',JSON.stringify(DEFAULT_TASKS));
-}
-function toggle(dateStr, idx){
- getDayTasks(dateStr)[idx].done=!getDayTasks(dateStr)[idx].done;
- save(); render();
-}
+function getDay(s){if(!tasksByDate[s]){tasksByDate[s]=DEFAULT.map(t=>({...t,done:false}));save();}return tasksByDate[s];}
+function save(){localStorage.setItem('tasksByDateV4',JSON.stringify(tasksByDate));localStorage.setItem('defaultTasksV4',JSON.stringify(DEFAULT));}
 function render(){
  let f=fmt(cur);
- let dayTasks=getDayTasks(f);
- let html='';
+ let day=getDay(f);
+ let weekStart=new Date(cur); weekStart.setDate(cur.getDate()-cur.getDay()+1);
+ let weekEnd=new Date(weekStart); weekEnd.setDate(weekStart.getDate()+6);
+ document.getElementById('weekLabel').textContent=`${fmt(weekStart).slice(5)} - ${fmt(weekEnd).slice(5)}`;
  ["Pagi","Sore","Malam"].forEach(slot=>{
-  let sTasks=dayTasks.filter((t,i)=>{t._i=i;return t.slot==slot});
-  if(!sTasks.length) return;
-  html+=`<div class="card"><b>${slot=="Pagi"?"早上 Pagi":slot=="Sore"?"下午 Sore":"晚上 Malam"} <span style="background:#fff3d6;border:2px solid #111;border-radius:8px;padding:2px 6px;font-size:.75rem">${sTasks.filter(t=>t.done).length}/${sTasks.length}</span></b>`;
-  sTasks.forEach(t=>{
-   html+=`<div style="display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1.5px dashed #f3d5b5">
-    <div class="chk ${t.done?'done':''}" onclick="toggle('${f}',${t._i})">${t.done?'✓':''}</div>
-    <div><b>${t.zh}</b><div class="small">${t.id} · ${t.time}</div>${t.linkMenu?`<a href="index.html" style="display:inline-block;margin-top:6px;background:#fff3d6;border:2px solid #111;border-radius:8px;padding:4px 8px;font-weight:800;text-decoration:none;color:#111">📖 睇菜單 / Menu</a>`:''}</div>
-   </div>`;
-  });
-  html+=`</div>`;
+  let list=day.filter(t=>t.slot==slot);
+  let done=list.filter(t=>t.done).length;
+  document.getElementById('badge'+slot).textContent=`${done}/${list.length}`;
+  document.getElementById('preview'+slot).textContent=list.map(t=>`${t.done?'✓':''}${t.zh}`).join(' · ')||'未有任務';
  });
- html+=`<div class="card" style="text-align:center"><div class="small">已完成 ${dayTasks.filter(t=>t.done).length}/${dayTasks.length}</div><div style="height:10px;background:#ffe9d0;border:2px solid #111;border-radius:20px;overflow:hidden;margin-top:8px"><div style="height:100%;background:var(--done);width:${dayTasks.length?dayTasks.filter(t=>t.done).length/dayTasks.length*100:0}%"></div></div></div>`;
- document.getElementById('list').innerHTML=html;
- document.getElementById('editPanel').style.display='none';
- document.getElementById('list').style.display='block';
 }
-function renderEdit(){
- let html=`<div class="card"><b>改預設任務（改一次，以後每日都跟）</b><div class="small">Edit default tasks</div><div id="editList"></div><button onclick="addTask()" style="margin-top:10px;padding:10px;border:2px dashed #111;border-radius:10px;width:100%">+ 加任務 / Tambah</button><button onclick="closeEdit()" class="btn" style="margin-top:12px">儲存 / Simpan</button></div>`;
- document.getElementById('editPanel').innerHTML=html;
- document.getElementById('list').style.display='none';
- document.getElementById('editPanel').style.display='block';
- let el=document.getElementById('editList');
- el.innerHTML=DEFAULT_TASKS.map((t,i)=>`<div style="border:2px solid #111;border-radius:12px;padding:10px;margin:10px 0"><input type="text" id="zh${i}" value="${t.zh}" placeholder="中文"><input type="text" id="id${i}" value="${t.id}" placeholder="印尼文"><div style="display:flex;gap:6px"><select id="slot${i}" style="flex:1;padding:8px;border:2px solid #111;border-radius:8px"><option ${t.slot=="Pagi"?"selected":""}>Pagi</option><option ${t.slot=="Sore"?"selected":""}>Sore</option><option ${t.slot=="Malam"?"selected":""}>Malam</option></select><input type="time" id="time${i}" value="${t.time}" style="flex:1;padding:8px;border:2px solid #111;border-radius:8px"><button onclick="delTask(${i})" style="background:#ffcccc;border:2px solid #111;border-radius:8px;padding:0 10px">✕</button></div><label style="font-size:.85rem"><input type="checkbox" id="link${i}" ${t.linkMenu?"checked":""}> 連去菜單 App / Link ke menu</label></div>`).join('');
+function openSlot(slot){
+ let f=fmt(cur); let day=getDay(f);
+ document.getElementById('modalTitle').textContent=slot=="Pagi"?"早上工作":slot=="Sore"?"下午工作":"晚上工作";
+ let html='';
+ day.forEach((t,i)=>{
+  if(t.slot!=slot) return;
+  html+=`<div class="task-row"><div class="chk ${t.done?'done':''}" onclick="toggle('${f}',${i})">${t.done?'✓':''}</div><div><b>${t.zh}</b><div class="small">${t.id} · ${t.time}</div></div></div>`;
+ });
+ document.getElementById('modalList').innerHTML=html||'<div class="small">未有任務，去設定加</div>';
+ document.getElementById('slotModal').classList.add('open');
 }
-function addTask(){DEFAULT_TASKS.push({zh:"新任務",id:"Tugas baru",slot:"Pagi",time:"08:00"});renderEdit();}
-function delTask(i){DEFAULT_TASKS.splice(i,1);renderEdit();}
-function closeEdit(){
+function closeSlot(){document.getElementById('slotModal').classList.remove('open'); render();}
+function toggle(dateStr,idx){getDay(dateStr)[idx].done=!getDay(dateStr)[idx].done; save(); openSlot(getDay(dateStr)[idx].slot);}
+function openSettings(){
+ let html=DEFAULT.map((t,i)=>`<div style="border:2px solid #111;border-radius:12px;padding:10px;margin:10px 0"><input id="zh${i}" value="${t.zh}" placeholder="中文"><input id="id${i}" value="${t.id}" placeholder="Indonesian"><div style="display:flex;gap:6px"><select id="slot${i}"><option ${t.slot=="Pagi"?"selected":""}>Pagi</option><option ${t.slot=="Sore"?"selected":""}>Sore</option><option ${t.slot=="Malam"?"selected":""}>Malam</option></select><input type="time" id="time${i}" value="${t.time}"><button onclick="delTask(${i})" style="background:#ffcccc;border:2px solid #111;border-radius:8px">✕</button></div></div>`).join('');
+ document.getElementById('settingsList').innerHTML=html;
+ document.getElementById('settingsModal').classList.add('open');
+}
+function closeSettings(){document.getElementById('settingsModal').classList.remove('open');}
+function addTask(){DEFAULT.push({zh:"新任務",id:"Tugas baru",slot:"Pagi",time:"08:00"}); openSettings();}
+function delTask(i){DEFAULT.splice(i,1); openSettings();}
+function saveSettings(){
  let newList=[];
- for(let i=0;i<DEFAULT_TASKS.length;i++){
-  let zh=document.getElementById('zh'+i).value;
+ for(let i=0;i<DEFAULT.length;i++){
+  let zh=document.getElementById('zh'+i)?.value; if(!zh) continue;
   let id=document.getElementById('id'+i).value;
   let slot=document.getElementById('slot'+i).value;
   let time=document.getElementById('time'+i).value;
-  let link=document.getElementById('link'+i).checked;
-  if(zh) newList.push({zh,id,slot,time,linkMenu:link});
+  newList.push({zh,id,slot,time});
  }
- DEFAULT_TASKS=newList; save(); render();
+ DEFAULT=newList; save(); closeSettings(); render();
 }
-// 長按標題入編輯
-let pressTimer;
-document.getElementById('titleBox').addEventListener('touchstart',()=>{pressTimer=setTimeout(renderEdit,700)});
-document.getElementById('titleBox').addEventListener('touchend',()=>clearTimeout(pressTimer));
-document.getElementById('titleBox').addEventListener('mousedown',()=>{pressTimer=setTimeout(renderEdit,700)});
-document.getElementById('titleBox').addEventListener('mouseup',()=>clearTimeout(pressTimer));
-document.getElementById('titleBox').onclick=(e)=>{if(e.detail==2)renderEdit()}; // 電腦雙擊
+async function exportPDF(){
+ const {jsPDF}=window.jspdf;
+ const doc=new jsPDF();
+ let f=fmt(cur);
+ let weekStart=new Date(cur); weekStart.setDate(cur.getDate()-cur.getDay()+1);
+ doc.setFontSize(16); doc.text(`姐姐週工作表 / Jadual Mingguan`,10,15);
+ doc.setFontSize(10); doc.text(`Week: ${fmt(weekStart)} - ${fmt(new Date(weekStart.getTime()+6*86400000))}`,10,22);
+ let y=30;
+ for(let d=0;d<7;d++){
+  let date=new Date(weekStart); date.setDate(weekStart.getDate()+d);
+  let ds=fmt(date); let day=getDay(ds);
+  let dayName=["日","一","二","三","四","五","六"][date.getDay()];
+  doc.setFontSize(12); doc.text(`${ds} (週${dayName})`,10,y); y+=6;
+  ["Pagi","Sore","Malam"].forEach(slot=>{
+   let list=day.filter(t=>t.slot==slot);
+   if(!list.length) return;
+   doc.setFontSize(9); doc.text(` ${slot}: ${list.map(t=>t.zh).join(', ')}`,12,y); y+=5;
+  });
+  y+=3; if(y>270){doc.addPage(); y=15;}
+ }
+ let fileName=`jadual-${fmt(weekStart)}.pdf`;
+ doc.save(fileName);
+ // WhatsApp 分享
+ setTimeout(()=>{
+  let text=encodeURIComponent(`姐姐，呢個係下星期工作表 / Kak, ini jadual minggu depan: ${fileName} (已下載，請喺下載資料夾搵PDF傳俾姐姐)`);
+  if(confirm('PDF已下載！而家用WhatsApp傳俾姐姐？\nPDF sudah download, kirim via WhatsApp?')){
+   window.open(`https://wa.me/?text=${text}`,'_blank');
+  }
+ },500);
+}
 render();
 </script>
 </body>
