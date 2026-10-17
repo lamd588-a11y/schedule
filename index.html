@@ -11,12 +11,13 @@
 body{margin:0;background:var(--bg);font-family:-apple-system,PingFang HK,Microsoft YaHei,sans-serif;padding-bottom:120px;font-size:17px}
 .top{position:sticky;top:0;background:#fff;border-bottom:2.5px solid #f3d5b5;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;z-index:10}
 .card{background:#fff;border:2.5px solid #111;border-radius:20px;padding:18px;margin:14px;box-shadow:4px 4px 0 #111;cursor:pointer}
-.btn{width:100%;padding:16px;border-radius:14px;background:var(--primary);color:#fff;font-weight:900;border:2.5px solid #111;box-shadow:3px 3px 0 #111;font-size:17px}
+.btn{width:100%;padding:16px;border-radius:14px;background:var(--primary);color:#fff;font-weight:900;border:2.5px solid #111;box-shadow:3px 3px 0 #111;font-size:17px;cursor:pointer}
+.btn2{background:#fff;color:#111}
 .badge{background:#fff3d6;border:2px solid #111;border-radius:10px;padding:3px 10px;font-weight:800;font-size:15px}
 .small{font-size:15px;color:#666}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;place-items:center;z-index:99;padding:14px}
 .modal.open{display:grid}
-.modal-box{background:#fff;border:2.5px solid #111;border-radius:22px;width:100%;max-width:520px;max-height:92vh;overflow:auto;padding:18px;box-shadow:6px 6px 0 #111}
+.modal-box{background:#fff;border:2.5px solid #111;border-radius:22px;width:100%;max-width:540px;max-height:92vh;overflow:auto;padding:18px;box-shadow:6px 6px 0 #111}
 .task-row{display:flex;gap:12px;align-items:flex-start;padding:14px 0;border-bottom:2px dashed #f3d5b5}
 .chk{width:40px;height:40px;min-width:40px;border:2.5px solid #111;border-radius:12px;display:grid;place-items:center;font-weight:900;background:#fff;cursor:pointer;font-size:20px}
 .chk.done{background:var(--done)}
@@ -27,7 +28,7 @@ input,select,textarea{width:100%;padding:12px;border:2.5px solid #111;border-rad
 </head>
 <body>
 <div class="top">
-  <div><b style="font-size:19px">姐姐日程</b><div class="small">大字版 + 備註</div></div>
+  <div><b style="font-size:19px">姐姐日程</b><div class="small">換機都OK</div></div>
   <div style="display:flex;gap:8px">
     <button onclick="openSettings()" style="padding:10px 14px;border:2.5px solid #111;border-radius:12px;background:#fff;font-weight:900">⚙️清單</button>
     <button onclick="exportPDF()" style="padding:10px 14px;border:2.5px solid #111;border-radius:12px;background:#111;color:#fff;font-weight:900">📄匯出</button>
@@ -36,34 +37,27 @@ input,select,textarea{width:100%;padding:12px;border:2.5px solid #111;border-rad
 
 <div style="max-width:580px;margin:0 auto;padding:10px">
   <div style="display:flex;gap:8px;padding:0 14px;align-items:center"><input type="date" id="dayPicker" style="flex:1"><span class="small" id="weekLabel"></span></div>
-  <div class="card" onclick="openSlot('Pagi')"><div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0;font-size:20px">☀️ 早上 Pagi</h3><span class="badge" id="badgePagi"></span></div><div class="small" id="previewPagi" style="margin-top:8px;line-height:1.6"></div><div class="small" id="notePagi" style="margin-top:6px;color:#b45309"></div></div>
-  <div class="card" onclick="openSlot('Sore')"><div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0;font-size:20px">🌤️ 下午 Sore</h3><span class="badge" id="badgeSore"></span></div><div class="small" id="previewSore" style="margin-top:8px;line-height:1.6"></div><div class="small" id="noteSore" style="margin-top:6px;color:#b45309"></div></div>
-  <div class="card" onclick="openSlot('Malam')"><div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0;font-size:20px">🌙 晚上 Malam</h3><span class="badge" id="badgeMalam"></span></div><div class="small" id="previewMalam" style="margin-top:8px;line-height:1.6"></div><div class="small" id="noteMalam" style="margin-top:6px;color:#b45309"></div></div>
-  <div class="card" style="cursor:default;background:#fffbeb"><b>📝 當日備註 / Catatan Hari Ini</b><div id="dayNoteShow" class="small" style="margin-top:6px;font-size:16px"></div><button onclick="openNoteModal()" style="margin-top:10px;width:100%;padding:10px;border:2px dashed #111;border-radius:10px;background:#fff">+ 加備註 / Tambah Catatan</button></div>
+  <div class="card" onclick="openSlot('Pagi')"><div style="display:flex;justify-content:space-between"><h3 style="margin:0;font-size:20px">☀️ 早上 Pagi</h3><span class="badge" id="badgePagi"></span></div><div class="small" id="previewPagi" style="margin-top:8px;line-height:1.7"></div><div class="small" id="notePagi" style="margin-top:6px;color:#b45309"></div></div>
+  <div class="card" onclick="openSlot('Sore')"><div style="display:flex;justify-content:space-between"><h3 style="margin:0;font-size:20px">🌤️ 下午 Sore</h3><span class="badge" id="badgeSore"></span></div><div class="small" id="previewSore" style="margin-top:8px;line-height:1.7"></div><div class="small" id="noteSore" style="margin-top:6px;color:#b45309"></div></div>
+  <div class="card" onclick="openSlot('Malam')"><div style="display:flex;justify-content:space-between"><h3 style="margin:0;font-size:20px">🌙 晚上 Malam</h3><span class="badge" id="badgeMalam"></span></div><div class="small" id="previewMalam" style="margin-top:8px;line-height:1.7"></div><div class="small" id="noteMalam" style="margin-top:6px;color:#b45309"></div></div>
+  <div class="card" style="cursor:default;background:#fffbeb"><b>📝 當日備註 / Catatan</b><div id="dayNoteShow" class="small" style="margin-top:6px;font-size:16px"></div><button onclick="openNoteModal()" style="margin-top:10px;width:100%;padding:10px;border:2px dashed #111;border-radius:10px;background:#fff">+ 加備註</button></div>
 </div>
 
-<!-- 時段彈窗 -->
-<div class="modal" id="slotModal"><div class="modal-box">
-  <div style="display:flex;justify-content:space-between"><h3 id="modalTitle" style="font-size:20px;margin:0"></h3><button onclick="closeSlot()" style="border:2.5px solid #111;border-radius:10px;padding:6px 12px;font-weight:900">✕</button></div>
-  <div id="modalList" style="margin-top:10px"></div>
-  <button onclick="closeSlot()" class="btn" style="margin-top:14px">完成 / Selesai</button>
-</div></div>
+<div class="modal" id="slotModal"><div class="modal-box"><div style="display:flex;justify-content:space-between"><h3 id="modalTitle" style="font-size:20px;margin:0"></h3><button onclick="closeSlot()" style="border:2.5px solid #111;border-radius:10px;padding:6px 12px;font-weight:900">✕</button></div><div id="modalList" style="margin-top:10px"></div><button onclick="closeSlot()" class="btn" style="margin-top:14px">完成 / Selesai</button></div></div>
+<div class="modal" id="noteModal"><div class="modal-box"><h3 style="margin:0">加備註 / Catatan</h3><textarea id="noteInput" rows="3" placeholder="例：雪櫃無雞蛋 / Kulkas habis telur"></textarea><select id="noteSlot"><option value="all">全日 / Sepanjang hari</option><option value="Pagi">早上 Pagi</option><option value="Sore">下午 Sore</option><option value="Malam">晚上 Malam</option></select><button onclick="saveNote()" class="btn" style="margin-top:10px">儲存備註</button><button onclick="closeNoteModal()" style="width:100%;margin-top:8px;padding:12px;border:2.5px solid #111;border-radius:12px;background:#fff;font-weight:800">取消</button></div></div>
 
-<!-- 備註彈窗 -->
-<div class="modal" id="noteModal"><div class="modal-box">
-  <h3 style="margin:0">加備註 / Tambah Catatan</h3>
-  <div class="small" style="margin:8px 0">剔完工作有咩要交代？例：雪櫃無雞蛋 / Kulkas habis telur</div>
-  <textarea id="noteInput" rows="3" placeholder="今日備註... Catatan hari ini..."></textarea>
-  <select id="noteSlot"><option value="all">全日 / Sepanjang hari</option><option value="Pagi">早上 Pagi</option><option value="Sore">下午 Sore</option><option value="Malam">晚上 Malam</option></select>
-  <button onclick="saveNote()" class="btn" style="margin-top:10px">儲存備註 / Simpan</button>
-  <button onclick="closeNoteModal()" style="width:100%;margin-top:8px;padding:12px;border:2.5px solid #111;border-radius:12px;background:#fff;font-weight:800">取消</button>
-</div></div>
-
-<!-- 設定清單 -->
 <div class="modal" id="settingsModal"><div class="modal-box">
-  <div style="display:flex;justify-content:space-between"><h3 style="margin:0">工作清單 / Daftar Kerja</h3><button onclick="closeSettings()" style="border:2.5px solid #111;border-radius:10px;padding:6px 12px">✕</button></div>
-  <div class="small" style="margin:10px 0;background:#e6f7ff;padding:10px;border-radius:10px;border:2px solid #111">淨係設任務名，時間喺日程頁揀<br>🌐要㩒掣先翻譯，唔會自動譯</div>
-  <div id="settingsList"></div>
+  <div style="display:flex;justify-content:space-between"><h3 style="margin:0">工作清單</h3><button onclick="closeSettings()" style="border:2.5px solid #111;border-radius:10px;padding:6px 12px">✕</button></div>
+  
+  <!-- 匯出匯入 -->
+  <div style="display:flex;gap:8px;margin:12px 0">
+    <button onclick="exportTasks()" style="flex:1;padding:12px;border:2.5px solid #111;border-radius:12px;background:#fff3d6;font-weight:900">📤 匯出清單<br><span style="font-size:12px">Export JSON</span></button>
+    <button onclick="document.getElementById('importFile').click()" style="flex:1;padding:12px;border:2.5px solid #111;border-radius:12px;background:#e6f7ff;font-weight:900">📥 匯入清單<br><span style="font-size:12px">Import JSON</span></button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importTasks(this)">
+  </div>
+  <div class="small" style="background:#f3f4f6;padding:8px;border-radius:8px;border:1.5px solid #111">💡 換電話：舊機按匯出→ WhatsApp傳JSON檔俾自己→ 新機開App按匯入→ 揀個檔就還原晒<br>📝 淨任務名，時間喺日程頁揀，🌐要㩒掣先譯</div>
+
+  <div id="settingsList" style="margin-top:10px"></div>
   <button onclick="addTask()" style="width:100%;margin-top:12px;padding:12px;border:2.5px dashed #111;border-radius:12px;font-weight:800">+ 加任務 / Tambah</button>
   <button onclick="saveSettings()" class="btn" style="margin-top:12px">儲存 / Simpan</button>
 </div></div>
@@ -80,7 +74,6 @@ let DEFAULT = JSON.parse(localStorage.getItem('defaultTasksV5')||'null') || [
 ];
 let tasksByDate = JSON.parse(localStorage.getItem('tasksByDateV5')||'{}');
 let notesByDate = JSON.parse(localStorage.getItem('notesByDateV5')||'{}');
-let lastToggledIndex = null;
 function fmt(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 let cur=new Date(); const picker=document.getElementById('dayPicker'); picker.valueAsDate=cur; picker.onchange=e=>{cur=e.target.valueAsDate;render();};
 function getDay(s){if(!tasksByDate[s]){tasksByDate[s]=DEFAULT.map(t=>({...t,done:false,time:""}));save();}if(!notesByDate[s]) notesByDate[s]=[]; return tasksByDate[s];}
@@ -97,97 +90,69 @@ function render(){
   document.getElementById('note'+slot).textContent=notes.length?`📝 ${notes.map(n=>n.text).join(' | ')}`:'';
  });
  let allNotes=notesByDate[f]||[];
- document.getElementById('dayNoteShow').innerHTML=allNotes.length?allNotes.map(n=>`• [${n.slot}] ${n.text}`).join('<br>'):'未有備註 / Belum ada catatan';
+ document.getElementById('dayNoteShow').innerHTML=allNotes.length?allNotes.map(n=>`• [${n.slot}] ${n.text}`).join('<br>'):'未有備註';
 }
-function openSlot(slot){
- let f=fmt(cur); let day=getDay(f);
- document.getElementById('modalTitle').textContent=slot=="Pagi"?"早上工作 / Pagi":slot=="Sore"?"下午工作 / Sore":"晚上工作 / Malam";
- let html='';
- day.forEach((t,i)=>{
-  if(t.slot!=slot) return;
-  html+=`<div class="task-row"><div class="chk ${t.done?'done':''}" onclick="toggle('${f}',${i})">${t.done?'✓':''}</div>
-  <div style="flex:1"><b style="font-size:18px">${t.zh}</b><div class="small" style="font-size:16px">${t.id}</div><input type="time" class="time-input" value="${t.time||''}" onchange="setTime('${f}',${i},this.value)" title="揀時間"></div></div>`;
- });
- document.getElementById('modalList').innerHTML=html||'<div class="small">未有任務，去⚙️清單加</div>';
- document.getElementById('slotModal').classList.add('open');
-}
+function openSlot(slot){let f=fmt(cur);let day=getDay(f);document.getElementById('modalTitle').textContent=slot;let html='';day.forEach((t,i)=>{if(t.slot!=slot)return;html+=`<div class="task-row"><div class="chk ${t.done?'done':''}" onclick="toggle('${f}',${i})">${t.done?'✓':''}</div><div style="flex:1"><b style="font-size:18px">${t.zh}</b><div class="small" style="font-size:16px">${t.id}</div><input type="time" class="time-input" value="${t.time||''}" onchange="setTime('${f}',${i},this.value)"></div></div>`});document.getElementById('modalList').innerHTML=html;document.getElementById('slotModal').classList.add('open');}
 function closeSlot(){document.getElementById('slotModal').classList.remove('open');render();}
 function setTime(ds,i,val){getDay(ds)[i].time=val;save();}
-function toggle(ds,i){
- let day=getDay(ds);
- day[i].done=!day[i].done; save(); 
- if(day[i].done){
-   // 剔完彈備註
-   lastToggledIndex=i;
-   setTimeout(()=>{ document.getElementById('noteInput').value=''; document.getElementById('noteSlot').value=day[i].slot; document.getElementById('noteModal').classList.add('open'); },300);
- }
- openSlot(day[i].slot);
-}
+function toggle(ds,i){let day=getDay(ds);day[i].done=!day[i].done;save();if(day[i].done){setTimeout(()=>{document.getElementById('noteInput').value='';document.getElementById('noteSlot').value=day[i].slot;document.getElementById('noteModal').classList.add('open');},300);}openSlot(day[i].slot);}
 function openNoteModal(){document.getElementById('noteInput').value='';document.getElementById('noteModal').classList.add('open');}
 function closeNoteModal(){document.getElementById('noteModal').classList.remove('open');}
-function saveNote(){
- let f=fmt(cur); let text=document.getElementById('noteInput').value.trim(); if(!text) return closeNoteModal();
- let slot=document.getElementById('noteSlot').value;
- if(!notesByDate[f]) notesByDate[f]=[];
- notesByDate[f].push({text,slot,time:new Date().toLocaleTimeString()});
- save(); closeNoteModal(); render();
+function saveNote(){let f=fmt(cur);let text=document.getElementById('noteInput').value.trim();if(!text)return closeNoteModal();let slot=document.getElementById('noteSlot').value;if(!notesByDate[f])notesByDate[f]=[];notesByDate[f].push({text,slot,time:new Date().toLocaleTimeString()});save();closeNoteModal();render();}
+async function translateZhToId(text,targetId){if(!text.trim())return alert('請先打中文');let btn=document.getElementById('btn-'+targetId);let orig=btn.textContent;btn.textContent='譯緊...';try{let res=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=zh|id`);let data=await res.json();document.getElementById(targetId).value=data.responseData.translatedText;}catch(e){alert('翻譯失敗');}btn.textContent=orig;}
+
+// === 匯出匯入 ===
+function exportTasks(){
+ let data={
+   version:"v5",
+   exportedAt:new Date().toISOString(),
+   tasks:DEFAULT,
+   notes:notesByDate
+ };
+ let blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+ let url=URL.createObjectURL(blob);
+ let a=document.createElement('a'); a.href=url; a.download=`jadual-tasks-${fmt(new Date())}.json`; a.click();
+ URL.revokeObjectURL(url);
+ // 同時提供WhatsApp分享
+ if(confirm('清單已下載！要唔要用WhatsApp傳去新電話？\nDaftar sudah didownload, kirim via WhatsApp ke HP baru?')){
+   window.open(`https://wa.me/?text=${encodeURIComponent('姐姐工作清單備份 / Backup daftar kerja - 請下載JSON檔後喺新電話按匯入')}`,'_blank');
+ }
 }
-async function translateZhToId(text,targetId){
- if(!text.trim()) return alert('請先打中文 / Ketik Mandarin dulu');
- let btn=document.getElementById('btn-'+targetId); let orig=btn.textContent; btn.textContent='譯緊...';
- try{let res=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=zh|id`);let data=await res.json();document.getElementById(targetId).value=data.responseData.translatedText;}catch(e){alert('翻譯失敗，再試');}
- btn.textContent=orig;
+function importTasks(input){
+ let file=input.files[0]; if(!file) return;
+ let reader=new FileReader();
+ reader.onload=e=>{
+   try{
+     let data=JSON.parse(e.target.result);
+     let tasks=data.tasks||data; // 兼容舊格式
+     if(!Array.isArray(tasks)) throw '格式錯';
+     if(confirm(`發現 ${tasks.length} 項任務，確定匯入覆蓋現有清單？\nDitemukan ${tasks.length} tugas, timpa daftar sekarang?`)){
+       DEFAULT=tasks.map(t=>({zh:t.zh||t.zh||'',id:t.id||'',slot:t.slot||'Pagi'}));
+       if(data.notes) notesByDate=data.notes;
+       save(); openSettings(); render();
+       alert('匯入成功！/ Import berhasil!');
+     }
+   }catch(err){alert('匯入失敗，檔案格式唔啱 / Gagal import: '+err);}
+ };
+ reader.readAsText(file);
+ input.value='';
 }
-function openSettings(){
- let html=DEFAULT.map((t,i)=>`<div style="border:2.5px solid #111;border-radius:14px;padding:12px;margin:12px 0;background:#fff">
- <div style="display:flex;gap:8px"><input id="zh${i}" value="${t.zh}" placeholder="中文任務，例如：清潔雪櫃"><button class="trans-btn" id="btn-id${i}" onclick="translateZhToId(document.getElementById('zh${i}').value,'id${i}')">🌐翻譯</button></div>
- <input id="id${i}" value="${t.id}" placeholder="印尼文 Indonesian">
- <div style="display:flex;gap:8px;margin-top:6px"><select id="slot${i}"><option ${t.slot=="Pagi"?"selected":""}>Pagi 早上</option><option ${t.slot=="Sore"?"selected":""}>Sore 下午</option><option ${t.slot=="Malam"?"selected":""}>Malam 晚上</option></select><button onclick="delTask(${i})" style="background:#ffcccc;border:2.5px solid #111;border-radius:10px;padding:0 14px;font-weight:900">✕</button></div></div>`).join('');
- document.getElementById('settingsList').innerHTML=html;
- document.getElementById('settingsModal').classList.add('open');
-}
+
+function openSettings(){let html=DEFAULT.map((t,i)=>`<div style="border:2.5px solid #111;border-radius:14px;padding:12px;margin:12px 0;background:#fff"><div style="display:flex;gap:8px"><input id="zh${i}" value="${t.zh}" placeholder="中文任務"><button class="trans-btn" id="btn-id${i}" onclick="translateZhToId(document.getElementById('zh${i}').value,'id${i}')">🌐翻譯</button></div><input id="id${i}" value="${t.id}" placeholder="Indonesian"><div style="display:flex;gap:8px;margin-top:6px"><select id="slot${i}"><option ${t.slot=="Pagi"?"selected":""}>Pagi 早上</option><option ${t.slot=="Sore"?"selected":""}>Sore 下午</option><option ${t.slot=="Malam"?"selected":""}>Malam 晚上</option></select><button onclick="delTask(${i})" style="background:#ffcccc;border:2.5px solid #111;border-radius:10px;padding:0 14px;font-weight:900">✕</button></div></div>`).join('');document.getElementById('settingsList').innerHTML=html;document.getElementById('settingsModal').classList.add('open');}
 function closeSettings(){document.getElementById('settingsModal').classList.remove('open');}
 function addTask(){DEFAULT.push({zh:"",id:"",slot:"Pagi"});openSettings();}
 function delTask(i){DEFAULT.splice(i,1);openSettings();}
 function saveSettings(){let nl=[];for(let i=0;i<DEFAULT.length;i++){let zh=document.getElementById('zh'+i)?.value.trim();if(!zh)continue;nl.push({zh,id:document.getElementById('id'+i).value.trim(),slot:document.getElementById('slot'+i).value});}DEFAULT=nl;save();closeSettings();render();}
 
-// === PDF：大字 + 中印 + 備註 + 一鍵分享 ===
 function exportPDF(){
  let weekStart=new Date(cur); weekStart.setDate(cur.getDate()-cur.getDay()+1);
- let w=window.open('','_blank');
- let tableRows='';
- for(let d=0;d<7;d++){
-  let date=new Date(weekStart); date.setDate(weekStart.getDate()+d); let ds=fmt(date); let day=getDay(ds); let notes=notesByDate[ds]||[];
-  let dayName=["日","一","二","三","四","五","六"][date.getDay()];
-  function col(slot){
-   let list=day.filter(t=>t.slot==slot); if(!list.length) return '<span style="color:#aaa">-</span>';
-   return list.map(t=>`<div style="margin-bottom:8px"><b style="font-size:15px">${t.zh}</b><br><span style="font-size:14px;color:#333">${t.id}</span><br><span style="font-size:12px;color:#666">${t.time||''} ${t.done?'✅':''}</span></div>`).join('');
-  }
+ let w=window.open('','_blank'); let tableRows='';
+ for(let d=0;d<7;d++){let date=new Date(weekStart); date.setDate(weekStart.getDate()+d); let ds=fmt(date); let day=getDay(ds); let notes=notesByDate[ds]||[];
+  function col(slot){let list=day.filter(t=>t.slot==slot); if(!list.length) return '<span style="color:#aaa">-</span>'; return list.map(t=>`<div style="margin-bottom:8px"><b style="font-size:15px">${t.zh}</b><br><span style="font-size:14px">${t.id}</span><br><span style="font-size:12px">${t.time||''} ${t.done?'✅':''}</span></div>`).join('');}
   let noteHtml=notes.length?`<div style="margin-top:8px;background:#fffbeb;border:1px dashed #111;padding:6px;border-radius:6px;font-size:13px">📝 ${notes.map(n=>`[${n.slot}] ${n.text}`).join('<br>')}</div>`:'';
-  tableRows+=`<tr><td><b>${ds}</b><br>週${dayName}<br>${noteHtml}</td><td>${col('Pagi')}</td><td>${col('Sore')}</td><td>${col('Malam')}</td></tr>`;
+  tableRows+=`<tr><td><b>${ds}</b><br>週${["日","一","二","三","四","五","六"][date.getDay()]}<br>${noteHtml}</td><td>${col('Pagi')}</td><td>${col('Sore')}</td><td>${col('Malam')}</td></tr>`;
  }
- let html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Jadual</title>
- <style>body{font-family:-apple-system,PingFang HK,Microsoft YaHei,sans-serif;padding:16px;font-size:16px} h2{margin:0 0 8px 0;font-size:22px} table{width:100%;border-collapse:collapse;margin-top:12px} th,td{border:2px solid #111;padding:10px;text-align:left;vertical-align:top} th{background:#fff3d6;font-size:15px} .btn{padding:14px 18px;border:2.5px solid #111;border-radius:12px;font-weight:900;font-size:16px;margin:6px;cursor:pointer} @media print{.no-print{display:none}} </style></head><body>
- <h2>姐姐週工作表 / Jadual Mingguan</h2><div>Week: ${fmt(weekStart)} - ${fmt(new Date(weekStart.getTime()+6*86400000))}</div>
- <table><tr><th style="width:22%">日期<br>Tanggal + 備註</th><th>☀️早上 Pagi<br>中文+印尼文</th><th>🌤️下午 Sore</th><th>🌙晚上 Malam</th></tr>${tableRows}</table>
- <div class="no-print" style="margin-top:18px;display:flex;flex-wrap:wrap">
-   <button class="btn" style="background:#ff8a3d;color:#fff" onclick="window.print()">📄 儲存為PDF / Save PDF</button>
-   <button class="btn" style="background:#25D366;color:#fff" onclick="shareWhatsApp()">💬 WhatsApp傳送 / Kirim WA</button>
-   <button class="btn" style="background:#fff" onclick="shareSystem()">🔗 系統分享 / Share</button>
- </div>
- <script>
- function shareWhatsApp(){
-   let text = \`姐姐週工作表 / Jadual Mingguan\\nWeek: ${fmt(weekStart)}\\n\\n\` + ${JSON.stringify(tableRows.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').slice(0,1000))} + \`
-   
-   詳細請睇PDF / Lihat PDF untuk detail\`;
-   let url='https://wa.me/?text='+encodeURIComponent(text);
-   window.open(url,'_blank');
- }
- async function shareSystem(){
-   let text=document.documentElement.outerHTML;
-   if(navigator.share){ try{ await navigator.share({title:'Jadual Mingguan',text:'姐姐週工作表 / Jadual Mingguan - ${fmt(weekStart)}'}); }catch(e){} } else { alert('請先按「儲存為PDF」再去WhatsApp傳送 / Silakan Save PDF dulu lalu kirim via WhatsApp'); }
- }
- <\/script></body></html>`;
+ let html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Jadual</title><style>body{font-family:-apple-system,PingFang HK,sans-serif;padding:16px;font-size:16px} h2{font-size:22px} table{width:100%;border-collapse:collapse;margin-top:12px} th,td{border:2px solid #111;padding:10px;vertical-align:top} th{background:#fff3d6;font-size:15px} .btn{padding:14px 18px;border:2.5px solid #111;border-radius:12px;font-weight:900;font-size:16px;margin:6px} @media print{.no-print{display:none}}</style></head><body><h2>姐姐週工作表 / Jadual Mingguan</h2><div>Week: ${fmt(weekStart)}</div><table><tr><th>日期+備註</th><th>早上 Pagi 中+印</th><th>下午 Sore</th><th>晚上 Malam</th></tr>${tableRows}</table><div class="no-print" style="margin-top:18px"><button class="btn" style="background:#ff8a3d;color:#fff" onclick="window.print()">📄 儲存為PDF</button><button class="btn" style="background:#25D366;color:#fff" onclick="window.open('https://wa.me/?text='+encodeURIComponent('姐姐週工作表 / Jadual Mingguan ${fmt(weekStart)}'))">💬 WhatsApp傳送</button></div></body></html>`;
  w.document.write(html); w.document.close();
 }
 render();
