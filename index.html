@@ -3,57 +3,113 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>姐姐日程 - Jadual Kerja</title>
+<title>姐姐日程 - 預設版</title>
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="icon" href="icon.png">
 <meta name="apple-mobile-web-app-title" content="姐姐日程">
 <style>
 :root{--bg:#fff7ed;--card:#fff;--primary:#ff8a3d;--border:#f3d5b5;--done:#a8e6a3}
-body{margin:0;background:var(--bg);font-family:-apple-system,PingFang HK,sans-serif;padding-bottom:110px}
-.top{position:sticky;top:0;background:#fff;border-bottom:2.5px solid var(--border);padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
-.card{background:#fff;border:2.5px solid #111;border-radius:18px;padding:14px;margin:14px}
-.btn{padding:14px;border-radius:14px;border:none;background:var(--primary);color:#fff;font-weight:900;width:100%}
-.task{border-bottom:1.5px dashed var(--border);padding:12px 4px;display:flex;gap:10px;align-items:center}
-.chk{width:28px;height:28px;border:2.5px solid #111;border-radius:8px;display:grid;place-items:center}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:-apple-system,PingFang HK,sans-serif;padding-bottom:120px}
+.top{position:sticky;top:0;background:#fff;border-bottom:2.5px solid #f3d5b5;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.card{background:#fff;border:2.5px solid #111;border-radius:18px;padding:14px;margin:14px;box-shadow:4px 4px 0 #111}
+.chk{width:34px;height:34px;border:2.5px solid #111;border-radius:9px;display:grid;place-items:center;font-weight:900;background:#fff;cursor:pointer}
 .chk.done{background:var(--done)}
-.badge{background:#fff3d6;border:2px solid #111;border-radius:10px;padding:2px 8px;font-weight:800}
+.btn{display:block;text-align:center;padding:14px;border-radius:14px;background:var(--primary);color:#fff;font-weight:900;text-decoration:none;border:2.5px solid #111}
+.small{font-size:.8rem;color:#666}
+input[type=text]{width:100%;padding:10px;border:2px solid #111;border-radius:10px;margin:4px 0}
 </style>
 </head>
 <body>
-<div class="top"><div><b>每日工作日程</b><div style="font-size:.8rem;color:#888">Jadual Kerja + Menu</div></div><input type="date" id="dayPicker"></div>
-<div id="list" style="max-width:520px;margin:0 auto;padding:10px"></div>
+<div class="top">
+  <div id="titleBox"><b>姐姐日程</b><div class="small">Jadual · 長按標題改預設</div></div>
+  <div><input type="date" id="dayPicker" style="padding:8px;border-radius:10px;border:2px solid #111"><a href="index.html" style="margin-left:8px;text-decoration:none;background:#fff3d6;border:2px solid #111;border-radius:10px;padding:8px 10px;font-weight:800;color:#111">🍳菜單</a></div>
+</div>
+<div id="list" style="max-width:560px;margin:0 auto"></div>
+<div id="editPanel" style="display:none;max-width:560px;margin:0 auto"></div>
 
 <script>
-const DEFAULT=[{zh:"掃地和拖地",id:"Menyapu lantai",slot:"Pagi",time:"07:00"},{zh:"準備早餐",id:"Sarapan",slot:"Pagi",time:"07:30"},{zh:"洗衣服",id:"Cuci baju",slot:"Sore",time:"13:00"},{zh:"準備晚餐",id:"Menyiapkan makan malam",slot:"Malam",time:"17:30",linkMenu:true},{zh:"清理廚房",id:"Bersih dapur",slot:"Malam",time:"19:00"}];
-let tasks=JSON.parse(localStorage.getItem('jadualTasks')||'null')||DEFAULT.map(t=>({...t,done:false,date:fmt(new Date())}));
-let curDate=new Date();
-function fmt(d){if(typeof d==='string')return d;return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
-dayPicker.valueAsDate=curDate; dayPicker.onchange=e=>{curDate=e.target.valueAsDate;render();}
+let DEFAULT_TASKS = JSON.parse(localStorage.getItem('defaultTasks')||'null') || [
+ {zh:"掃地和拖地",id:"Menyapu & mengepel",slot:"Pagi",time:"07:00"},
+ {zh:"準備早餐",id:"Sarapan",slot:"Pagi",time:"07:30"},
+ {zh:"洗衫晾衫",id:"Cuci & jemur baju",slot:"Pagi",time:"09:00"},
+ {zh:"買餸 / 準備午餐",id:"Beli & masak siang",slot:"Sore",time:"11:00"},
+ {zh:"清潔廁所",id:"Bersih kamar mandi",slot:"Sore",time:"14:00"},
+ {zh:"準備晚餐",id:"Masak malam",slot:"Malam",time:"17:30",linkMenu:true},
+ {zh:"清理廚房",id:"Bersih dapur",slot:"Malam",time:"19:00"}
+];
+let tasksByDate = JSON.parse(localStorage.getItem('tasksByDate')||'{}');
+function fmt(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+let cur=new Date();
+const picker=document.getElementById('dayPicker');
+picker.valueAsDate=cur;
+picker.onchange=e=>{cur=e.target.valueAsDate;render();};
 
-function toggle(i){tasks[i].done=!tasks[i].done;localStorage.setItem('jadualTasks',JSON.stringify(tasks));render();}
+function getDayTasks(dateStr){
+ if(!tasksByDate[dateStr]){
+   tasksByDate[dateStr]=DEFAULT_TASKS.map(t=>({...t,done:false}));
+   save();
+ }
+ return tasksByDate[dateStr];
+}
+function save(){
+ localStorage.setItem('tasksByDate',JSON.stringify(tasksByDate));
+ localStorage.setItem('defaultTasks',JSON.stringify(DEFAULT_TASKS));
+}
+function toggle(dateStr, idx){
+ getDayTasks(dateStr)[idx].done=!getDayTasks(dateStr)[idx].done;
+ save(); render();
+}
 function render(){
- let f=fmt(curDate); let dayTasks=tasks.filter(t=>t.date==f);
+ let f=fmt(cur);
+ let dayTasks=getDayTasks(f);
  let html='';
  ["Pagi","Sore","Malam"].forEach(slot=>{
-  html+=`<div class="card"><b>${slot}</b>`;
-  dayTasks.filter(t=>t.slot==slot).forEach(t=>{
-   let gi=tasks.indexOf(t);
-   let menuBtn=t.linkMenu?`<button onclick="goMenu()" style="margin-left:8px;background:#fff3d6;border:2px solid #111;border-radius:8px;padding:4px 8px;font-weight:800">📖 睇今日菜單 / Lihat Menu</button>`:'';
-   html+=`<div class="task"><div class="chk ${t.done?'done':''}" onclick="toggle(${gi})">${t.done?'✓':''}</div><div><b>${t.zh} / ${t.id}</b><div style="font-size:.8rem;color:#888">${t.time}</div>${menuBtn}</div></div>`;
+  let sTasks=dayTasks.filter((t,i)=>{t._i=i;return t.slot==slot});
+  if(!sTasks.length) return;
+  html+=`<div class="card"><b>${slot=="Pagi"?"早上 Pagi":slot=="Sore"?"下午 Sore":"晚上 Malam"} <span style="background:#fff3d6;border:2px solid #111;border-radius:8px;padding:2px 6px;font-size:.75rem">${sTasks.filter(t=>t.done).length}/${sTasks.length}</span></b>`;
+  sTasks.forEach(t=>{
+   html+=`<div style="display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1.5px dashed #f3d5b5">
+    <div class="chk ${t.done?'done':''}" onclick="toggle('${f}',${t._i})">${t.done?'✓':''}</div>
+    <div><b>${t.zh}</b><div class="small">${t.id} · ${t.time}</div>${t.linkMenu?`<a href="index.html" style="display:inline-block;margin-top:6px;background:#fff3d6;border:2px solid #111;border-radius:8px;padding:4px 8px;font-weight:800;text-decoration:none;color:#111">📖 睇菜單 / Menu</a>`:''}</div>
+   </div>`;
   });
   html+=`</div>`;
  });
- document.getElementById('list').innerHTML=html+`<div class="card"><button class="btn" onclick="goMenu()">🍳 直接去我的菜單 / Buka Aplikasi Menu</button></div>`;
+ html+=`<div class="card" style="text-align:center"><div class="small">已完成 ${dayTasks.filter(t=>t.done).length}/${dayTasks.length}</div><div style="height:10px;background:#ffe9d0;border:2px solid #111;border-radius:20px;overflow:hidden;margin-top:8px"><div style="height:100%;background:var(--done);width:${dayTasks.length?dayTasks.filter(t=>t.done).length/dayTasks.length*100:0}%"></div></div></div>`;
+ document.getElementById('list').innerHTML=html;
+ document.getElementById('editPanel').style.display='none';
+ document.getElementById('list').style.display='block';
 }
-function goMenu(){
- // 如果你個菜單檔叫 index.html 或 menu.html，會自動跳
- if(confirm('跳去「我的菜單」睇今日煮咩？ / Buka menu hari ini?')){
-  // 試下搵同目錄下嘅菜單
-  let possible=["index.html","menu.html","我的菜單.html","Best_Version_27.html"];
-  // 預設跳去 index.html，你可以改
-  window.location.href="index.html";
+function renderEdit(){
+ let html=`<div class="card"><b>改預設任務（改一次，以後每日都跟）</b><div class="small">Edit default tasks</div><div id="editList"></div><button onclick="addTask()" style="margin-top:10px;padding:10px;border:2px dashed #111;border-radius:10px;width:100%">+ 加任務 / Tambah</button><button onclick="closeEdit()" class="btn" style="margin-top:12px">儲存 / Simpan</button></div>`;
+ document.getElementById('editPanel').innerHTML=html;
+ document.getElementById('list').style.display='none';
+ document.getElementById('editPanel').style.display='block';
+ let el=document.getElementById('editList');
+ el.innerHTML=DEFAULT_TASKS.map((t,i)=>`<div style="border:2px solid #111;border-radius:12px;padding:10px;margin:10px 0"><input type="text" id="zh${i}" value="${t.zh}" placeholder="中文"><input type="text" id="id${i}" value="${t.id}" placeholder="印尼文"><div style="display:flex;gap:6px"><select id="slot${i}" style="flex:1;padding:8px;border:2px solid #111;border-radius:8px"><option ${t.slot=="Pagi"?"selected":""}>Pagi</option><option ${t.slot=="Sore"?"selected":""}>Sore</option><option ${t.slot=="Malam"?"selected":""}>Malam</option></select><input type="time" id="time${i}" value="${t.time}" style="flex:1;padding:8px;border:2px solid #111;border-radius:8px"><button onclick="delTask(${i})" style="background:#ffcccc;border:2px solid #111;border-radius:8px;padding:0 10px">✕</button></div><label style="font-size:.85rem"><input type="checkbox" id="link${i}" ${t.linkMenu?"checked":""}> 連去菜單 App / Link ke menu</label></div>`).join('');
+}
+function addTask(){DEFAULT_TASKS.push({zh:"新任務",id:"Tugas baru",slot:"Pagi",time:"08:00"});renderEdit();}
+function delTask(i){DEFAULT_TASKS.splice(i,1);renderEdit();}
+function closeEdit(){
+ let newList=[];
+ for(let i=0;i<DEFAULT_TASKS.length;i++){
+  let zh=document.getElementById('zh'+i).value;
+  let id=document.getElementById('id'+i).value;
+  let slot=document.getElementById('slot'+i).value;
+  let time=document.getElementById('time'+i).value;
+  let link=document.getElementById('link'+i).checked;
+  if(zh) newList.push({zh,id,slot,time,linkMenu:link});
  }
+ DEFAULT_TASKS=newList; save(); render();
 }
+// 長按標題入編輯
+let pressTimer;
+document.getElementById('titleBox').addEventListener('touchstart',()=>{pressTimer=setTimeout(renderEdit,700)});
+document.getElementById('titleBox').addEventListener('touchend',()=>clearTimeout(pressTimer));
+document.getElementById('titleBox').addEventListener('mousedown',()=>{pressTimer=setTimeout(renderEdit,700)});
+document.getElementById('titleBox').addEventListener('mouseup',()=>clearTimeout(pressTimer));
+document.getElementById('titleBox').onclick=(e)=>{if(e.detail==2)renderEdit()}; // 電腦雙擊
 render();
 </script>
 </body>
